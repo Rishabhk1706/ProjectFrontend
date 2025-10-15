@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login Page</title>
+  <link rel="stylesheet" href="login.css" />
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+  <header>
+      <nav>
+          <div class="logo">Hackathon Accumulator</div>
+          <ul class="nav-links">
+              <li><a href="home.html">Home</a></li>
+              <li><a href="colleges.html">Colleges</a></li>
+              <li><a href="about.html">About</a></li>
+              <li><a href="dashboard.html">Dashboard</a></li>
+          </ul>
+          <button class="mobile-menu-toggle">☰</button>
+      </nav>
+  </header>
+
+  <div class="container">
+    <a href="home.html" class="left-link">
+      <div class="left-panel"></div>
+    </a>
+
+    <div class="right-panel">
+      <h2>Log in to your account</h2>
+      <p class="sub-text">
+        Don't have an account? <a href="create.html">Create one</a>
+      </p>
+
+      <form id="loginForm">
+        <input type="email" id="email" placeholder="Email" required />
+
+        <div class="password-container">
+          <input type="password" id="password" placeholder="Enter your password" required />
+          <span class="toggle-password" onclick="togglePassword()">👁️</span>
+        </div>
+
+        <div class="terms">
+          <label><input type="checkbox" /> Remember me</label>
+          <a href="#" class="forgot-link">Forgot password?</a>
+        </div>
+
+        <div id="login-message" class="message"></div>
+
+        <div class="btn-wrapper">
+          <button type="submit" class="create-btn">Log In</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        window.location.href = "dashboard.html";
+      }
+    });
+    
+    const form = document.getElementById("loginForm");
+
+    function showMessage(text, type) {
+      const msgDiv = document.getElementById("login-message");
+      msgDiv.textContent = text;
+      msgDiv.className = `message ${type}`;
+      msgDiv.style.display = "block";
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      try {
+        const res = await axios.post("https://hackathonaccumulator.onrender.com/api/auth/login", {
+          email,
+          password,
+        });
+
+        const { token, user } = res.data;
+        showMessage("Login successful!", "success");
+
+        // Store JWT token
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(user));
+
+        // Redirect after login
+        setTimeout(() => {
+          window.location.href = "dashboard.html";
+        }, 1000);
+      } catch (error) {
+        const msg = error.response?.data?.error || "Login failed";
+        showMessage(msg, "error");
+      }
+    });
+
+    // Mobile menu toggle (basic implementation)
+    const mobileToggle = document.querySelector('.mobile-menu-toggle');
+    const navLinks = document.querySelector('.nav-links');
+
+    mobileToggle.addEventListener('click', () => {
+        navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
+        if (navLinks.style.display === 'flex') {
+            navLinks.style.flexDirection = 'column';
+            navLinks.style.position = 'absolute';
+            navLinks.style.top = '100%';
+            navLinks.style.left = '0';
+            navLinks.style.right = '0';
+            navLinks.style.background = 'rgba(102, 126, 234, 0.95)';
+            navLinks.style.padding = '1rem';
+            navLinks.style.borderRadius = '0 0 1rem 1rem';
+        }
+    });
+
+    function togglePassword() {
+      const pwd = document.getElementById("password");
+      const icon = document.querySelector(".toggle-password");
+      if (pwd.type === "password") {
+        pwd.type = "text";
+        icon.textContent = "🙈";
+      } else {
+        pwd.type = "password";
+        icon.textContent = "👁️";
+      }
+    }
+  </script>
+</body>
+</html>
