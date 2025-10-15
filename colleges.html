@@ -109,7 +109,7 @@
       const grid = document.getElementById("collegeGrid");
       
       try {
-        const res = await axios.get("http://localhost:3000/api/colleges");
+        const res = await axios.get("https://hackathonaccumulator.onrender.com/api/colleges");
         allColleges = res.data.sort((a, b) => a.name.localeCompare(b.name));
         filteredColleges = [...allColleges];
         renderColleges(filteredColleges);
