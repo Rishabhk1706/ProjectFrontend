@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>All Colleges - Hackathon Accumulator</title>
+  <link rel="stylesheet" href="colleges.css" />
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+  <header>
+    <nav>
+      <div class="logo">Hackathon Accumulator</div>
+      <ul class="nav-links">
+        <li><a href="home.html">Home</a></li>
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="login.html">Login</a></li>
+        <li><a href="create.html" class="cta-button">Join Now</a></li>
+      </ul>
+      <button class="mobile-menu-toggle">&#9776;</button>
+    </nav>
+  </header>
+
+  <section class="college-section">
+    <div class="college-container">
+      <h1 class="section-title">Participating Colleges</h1>
+      <p class="section-subtitle">
+        Discover amazing educational institutions that are part of our hackathon community
+      </p>
+      
+      <div class="search-container">
+        <input 
+          type="text" 
+          class="search-input" 
+          placeholder="Search colleges by name, location, or domain..."
+          id="searchInput"
+        />
+      </div>
+
+      <div class="college-count" id="collegeCount"></div>
+      
+      <div class="college-grid" id="collegeGrid">
+        <div class="loading">Loading colleges...</div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    let allColleges = [];
+    let filteredColleges = [];
+
+    function renderColleges(colleges) {
+      const grid = document.getElementById("collegeGrid");
+      const countElement = document.getElementById("collegeCount");
+      
+      if (colleges.length === 0) {
+        grid.innerHTML = `
+          <div class="error-message">
+            <p>No colleges found matching your search criteria.</p>
+          </div>
+        `;
+        countElement.textContent = "";
+        return;
+      }
+
+      countElement.textContent = `Showing ${colleges.length} college${colleges.length === 1 ? '' : 's'}`;
+      
+      grid.innerHTML = "";
+      
+      colleges.forEach((college, index) => {
+        const card = document.createElement("div");
+        card.className = "college-card";
+        card.style.animationDelay = `${(index % 6) * 0.1}s`;
+        
+        card.innerHTML = `
+          <h3>${college.name}</h3>
+          <div class="college-info">
+            <strong>Location:</strong>
+            <p>${college.location}</p>
+          </div>
+          <div class="college-domain">${college.domain}</div>
+        `;
+        
+        grid.appendChild(card);
+      });
+    }
+
+    function filterColleges(searchTerm) {
+      if (!searchTerm.trim()) {
+        filteredColleges = [...allColleges];
+      } else {
+        const term = searchTerm.toLowerCase();
+        filteredColleges = allColleges.filter(college =>
+          college.name.toLowerCase().includes(term) ||
+          college.location.toLowerCase().includes(term) ||
+          college.domain.toLowerCase().includes(term)
+        );
+      }
+      renderColleges(filteredColleges);
+    }
+
+    // Search functionality
+    document.getElementById("searchInput").addEventListener("input", (e) => {
+      filterColleges(e.target.value);
+    });
+
+    // Load colleges on page load
+    window.addEventListener("DOMContentLoaded", async () => {
+      const grid = document.getElementById("collegeGrid");
+      
+      try {
+        const res = await axios.get("http://localhost:3000/api/colleges");
+        allColleges = res.data.sort((a, b) => a.name.localeCompare(b.name));
+        filteredColleges = [...allColleges];
+        renderColleges(filteredColleges);
+      } catch (err) {
+        console.error("Error fetching colleges", err);
+        grid.innerHTML = `
+          <div class="error-message">
+            <p>Unable to load colleges. Please check your connection and try again.</p>
+            <button onclick="location.reload()" style="
+              background: linear-gradient(135deg, #BA447D 0%, #764ba2 100%);
+              color: white;
+              border: none;
+              padding: 0.75rem 1.5rem;
+              border-radius: 2rem;
+              cursor: pointer;
+              margin-top: 1rem;
+              font-size: 1rem;
+              transition: all 0.3s ease;
+            ">Try Again</button>
+          </div>
+        `;
+        document.getElementById("collegeCount").textContent = "";
+      }
+    });
+
+    // Mobile menu toggle
+    document.querySelector('.mobile-menu-toggle').addEventListener('click', function() {
+      const navLinks = document.querySelector('.nav-links');
+      navLinks.classList.toggle('active');
+    });
+
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', function(e) {
+      const nav = document.querySelector('nav');
+      const navLinks = document.querySelector('.nav-links');
+      
+      if (!nav.contains(e.target) && navLinks.classList.contains('active')) {
+        navLinks.classList.remove('active');
+      }
+    });
+
+    // Close mobile menu when clicking on a link
+    document.querySelectorAll('.nav-links a').forEach(link => {
+      link.addEventListener('click', function() {
+        document.querySelector('.nav-links').classList.remove('active');
+      });
+    });
+  </script>
+</body>
+</html>
