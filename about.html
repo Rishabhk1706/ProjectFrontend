@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - Hackathon Accumulator</title>
+    <link rel="stylesheet" href="about.css">
+</head>
+<body>
+    <div class="container">
+        <header class="hero-section">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    <span class="gradient-text">Hackathon Accumulator</span>
+                </h1>
+                <p class="hero-subtitle">Where Innovation Meets Collaboration</p>
+                <div class="hero-description">
+                    <p>A dynamic networking platform built to connect students, clubs, and innovators across colleges. Whether you're looking to <strong>form a team</strong>, <strong>host an event</strong>, or <strong>collaborate on tech projects</strong>, this platform brings it all under one roof.</p>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="floating-card card-1">
+                    <div class="card-icon">🎯</div>
+                    <span>Discover Events</span>
+                </div>
+                <div class="floating-card card-2">
+                    <div class="card-icon">🤝</div>
+                    <span>Find Teammates</span>
+                </div>
+                <div class="floating-card card-3">
+                    <div class="card-icon">🚀</div>
+                    <span>Launch Projects</span>
+                </div>
+            </div>
+        </header>
+
+        <section class="mission-section">
+            <div class="mission-content">
+                <div class="mission-text">
+                    <h2>Our Mission</h2>
+                    <p class="mission-statement">We believe that <span class="highlight">innovation thrives in collaboration</span> — and Hackathon Accumulator is your catalyst for turning ideas into reality.</p>
+                </div>
+                <div class="mission-graphic">
+                    <div class="collaboration-visual">
+                        <div class="node node-1"></div>
+                        <div class="node node-2"></div>
+                        <div class="node node-3"></div>
+                        <div class="node node-4"></div>
+                        <div class="connection connection-1"></div>
+                        <div class="connection connection-2"></div>
+                        <div class="connection connection-3"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="features-section">
+            <h2 class="section-title">What We Offer</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Smart Discovery</h3>
+                    <p>Discover hackathons and college events tailored to your interests and skills with our intelligent recommendation engine.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🤝</div>
+                    <h3>Perfect Matchmaking</h3>
+                    <p>Find like-minded teammates using our smart matchmaking system that connects you based on skills, interests, and availability.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🚀</div>
+                    <h3>Project Management</h3>
+                    <p>Launch and manage projects with clearly defined roles and availability tracking to keep your team organized and productive.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Secure Experience</h3>
+                    <p>Enjoy a seamless experience with secure login and personalized dashboards that adapt to your unique needs and preferences.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Hackathon Accumulator</h3>
+                <p>Empowering students to connect, create, and collaborate in the world of technology and innovation.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <p><a href="home.html">Home</a></p>
+                <p><a href="colleges.html">Explore Colleges</a></p>
+                <p><a href="allevents.html">Browse Events</a></p>
+                <p><a href="allprojects.html">View Projects</a></p>
+            </div>
+            <div class="footer-section">
+                <h3>For Students</h3>
+                <p><a href="create.html">Sign Up</a></p>
+                <p><a href="login.html">Login</a></p>
+                <p><a href="dashboard.html">Dashboard</a></p>
+                <p><a href="/help">Help Center</a></p>
+            </div>
+            <div class="footer-section">
+                <h3>Contact</h3>
+                <p>Email: hello@hackathonaccumulator.com</p>
+                <p>Follow us on social media for updates and announcements.</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Hackathon Accumulator. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Add some interactive animations
+        const cards = document.querySelectorAll('.floating-card');
+        const featureCards = document.querySelectorAll('.feature-card');
+        
+        // Floating animation for hero cards
+        cards.forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.5}s`;
+        });
+
+        // Hover effects for feature cards
+        featureCards.forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-10px) scale(1.02)';
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+
+        // Intersection Observer for animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-in');
+                }
+            });
+        });
+
+        document.querySelectorAll('.feature-card, .mission-section').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
