@@ -1,0 +1,355 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  
+  body {
+    background: white;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+  }
+  
+  /* Header */
+  header {
+      background: black;
+      color: white;
+      padding: 1rem 0;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 1000;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+  }
+  
+  .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+  }
+  
+  .nav-links {
+      display: flex;
+      list-style: none;
+      gap: 2rem;
+  }
+  
+  .nav-links a {
+      color: white;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+  }
+  
+  .nav-links a:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+  }
+  
+  
+  /* Mobile Menu */
+  .mobile-menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+  }
+  
+  .container {
+    width: 100%;
+    max-width: 1000px;
+    display: flex;
+    height: 430px;
+    background: #000000;
+    overflow: hidden;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+    position: relative;
+  }
+  
+  .left-link {
+    flex: 1;
+    display: block;
+    height: 100%;
+  }
+  
+  .left-panel {
+    width: 100%;
+    height: 100%;
+    background: url('loginphoto.png') center/cover no-repeat;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 20px;
+    cursor: pointer;
+  }
+  
+  .right-panel {
+    flex: 1;
+    padding: 30px;
+    background-color: rgb(0, 0, 0);
+    margin-top: 25px;
+  }
+  
+  .right-panel h2 {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+  }
+  
+  .sub-text {
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+  }
+  
+  .sub-text a {
+    color: #a188ff;
+    text-decoration: none;
+  }
+  
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  input[type="email"] {
+    padding: 12px;
+    background: #2e2938;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    margin-bottom: 15px;
+    font-size: 1rem;
+  }
+  
+  input::placeholder {
+    color: #aaa;
+  }
+  
+  .password-container {
+    position: relative;
+    width: 100%;
+  }
+  
+  .password-container input {
+    width: 100%;
+    padding: 12px;
+    padding-right: 40px;
+    background: #2e2938;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-size: 1rem;
+    margin-bottom: 15px;
+  }
+  
+  .toggle-password {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: #aaa;
+    user-select: none;
+    transition: color 0.2s ease;
+  }
+  
+  .toggle-password:hover {
+    color: white;
+  }
+  
+  .terms {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+  }
+  
+  .forgot-link {
+    color: #a188ff;
+    text-decoration: none;
+  }
+  
+  .btn-wrapper {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .message {
+    font-size: 0.95rem;
+    font-family: 'Segoe UI';
+  }
+  
+  .create-btn {
+    padding: 10px 35px;
+    background: #7e5bef;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .create-btn:hover {
+    background-color: #4b4453;
+  }
+  
+  /* ========== Responsive Styles ========== */
+  
+  @media (max-width: 1024px) {
+    .nav-links {
+      display: none;
+    }
+  
+    .mobile-menu-toggle {
+      display: block;
+    }
+  
+    .container {
+      height: auto;
+      flex-direction: column;
+      max-width: 90%;
+    }
+  
+    .left-link {
+      height: 200px;
+    }
+  
+    .left-panel {
+      justify-content: flex-start;
+      align-items: center;
+      padding: 20px;
+      height: 200px;
+      background-position: center;
+    }
+  
+    .right-panel {
+      padding: 30px 25px;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .nav-links {
+      display: none;
+    }
+  
+    .mobile-menu-toggle {
+      display: block;
+    }
+  
+    .container {
+      flex-direction: column;
+      width: 95%;
+      border-radius: 15px;
+    }
+  
+    .right-panel h2 {
+      font-size: 1.5rem;
+    }
+  
+    .sub-text {
+      font-size: 0.85rem;
+    }
+  
+    input[type="email"],
+    .password-container input {
+      font-size: 0.95rem;
+    }
+  
+    .terms {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+  
+    .create-btn {
+      font-size: 0.95rem;
+    }
+  
+    .back-btn {
+      top: 10px;
+      left: 10px;
+      font-size: 0.75rem;
+      padding: 4px 10px;
+    }
+  
+    .toggle-password {
+      font-size: 1.1rem;
+      right: 10px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .nav-links {
+      display: none;
+    }
+  
+    .mobile-menu-toggle {
+      padding: 10px;
+    }
+  
+    .container {
+      width: 100%;
+      border-radius: 5px;
+      box-shadow: none;
+      height: auto;
+    }
+  
+    .left-panel {
+      height: 250px;
+    }
+  
+    .right-panel {
+      padding: 20px;
+      min-height: 300px;
+    }
+  
+    .right-panel h2 {
+      font-size: 1.4rem;
+    }
+  
+    input[type="email"],
+    .password-container input {
+      padding: 10px;
+    }
+  
+    .create-btn {
+      padding: 10px;
+      font-size: 0.9rem;
+    }
+  
+    .toggle-password {
+      font-size: 1rem;
+    }
+  
+    .terms {
+      flex-direction: row !important;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0;
+    }
+  }
+  
