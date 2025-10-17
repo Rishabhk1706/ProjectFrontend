@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>All Events</title>
+  <link rel="stylesheet" href="allevents.css" />
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <a href="dashboard.html" class="logo">Hackathon Accumulator</a>
+      <ul class="nav-links">
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="allprojects.html">Projects</a></li>
+        <li><a href="allmatch.html">Team Requests</a></li>
+        <li><a href="profile.html">Profile</a></li>
+        <li><a href="#" onclick="logout()">Logout</a></li>
+      </ul>
+      <div class="hamburger" onclick="toggleMenu()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <div class="project-container">
+      <h1>All Events</h1>
+      <div class="search-bar-container">
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Search events..."
+          oninput="filterEvents()"
+        />
+      </div>
+      <div id="eventList" class="project-list">
+        <div class="loading">Loading events...</div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    let allEvents = [];
+
+    const token = localStorage.getItem("token");
+
+    function toggleMenu() {
+      document.querySelector('.nav-links').classList.toggle('active');
+      document.querySelector('.hamburger').classList.toggle('active');
+    }
+
+    document.querySelectorAll('.nav-links a').forEach(link => {
+      link.addEventListener('click', () => {
+        document.querySelector('.nav-links').classList.remove('active');
+        document.querySelector('.hamburger').classList.remove('active');
+      });
+    });
+
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      alert('Logged out successfully!');
+      window.location.href = 'login.html';
+    }
+
+    function getStatusClass(status) {
+      if (!status) return "";
+      const s = status.toLowerCase();
+      if (s === "upcoming") return "status-active";
+      if (s === "ongoing") return "status-pending";
+      if (s === "past") return "status-completed";
+      return "";
+    }
+
+    function computeStatus(startDate, endDate) {
+      const now = new Date();
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+
+      if (now >= start && now <= end) return "ongoing";
+      if (now > end) return "past";
+      return "upcoming";
+    }
+
+    const formatDate = (dateStr) => {
+      const date = new Date(dateStr);
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = String(date.getFullYear()).slice(-2);
+      return `${day}/${month}/${year}`;
+    };
+
+    async function loadEvents() {
+      if (!token) {
+        alert("Please login first.");
+        return window.location.href = "login.html";
+      }
+
+      try {
+        const res = await axios.get("http://localhost:3000/api/events", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        allEvents = res.data.sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
+        renderEvents(allEvents);
+
+      } catch (err) {
+        console.error("Error loading events:", err);
+        document.getElementById("eventList").innerHTML = '<div class="no-projects">Could not fetch events. Try again later.</div>';
+      }
+    }
+
+    function renderEvents(events) {
+      const listEl = document.getElementById("eventList");
+      listEl.innerHTML = "";
+
+      if (events.length === 0) {
+        listEl.innerHTML = '<div class="no-projects">No events found.</div>';
+        return;
+      }
+
+      for (const event of events) {
+        const item = document.createElement("div");
+        item.className = "project-item";
+
+        const start = formatDate(event.startDate);
+        const end = formatDate(event.endDate);
+        const status = computeStatus(event.startDate, event.endDate);
+        const badgeClass = getStatusClass(status);
+
+        item.innerHTML = `
+          <h3>${event.title}</h3>
+          <p><strong>Status:</strong> <span class="status-badge ${badgeClass}">${status}</span></p>
+          <p><strong>Type:</strong> ${event.eventType || "Not specified"}</p>
+          <p><strong>Venue:</strong> ${event.location || "Not specified"}</p>
+          <p><strong>Dates:</strong> ${start} to ${end}</p>
+        `;
+
+        item.addEventListener("click", () => {
+          window.location.href = `event.html?id=${event._id}`;
+        });
+
+        listEl.appendChild(item);
+      }
+    }
+
+    function filterEvents() {
+      const query = document.getElementById("searchInput").value.toLowerCase();
+      const filtered = allEvents.filter(e =>
+        e.title.toLowerCase().includes(query)
+      );
+      renderEvents(filtered);
+    }
+
+    document.addEventListener('click', (e) => {
+      const navLinks = document.querySelector('.nav-links');
+      const hamburger = document.querySelector('.hamburger');
+      const navbar = document.querySelector('.navbar');
+
+      if (!navbar.contains(e.target) && navLinks.classList.contains('active')) {
+        navLinks.classList.remove('active');
+        hamburger.classList.remove('active');
+      }
+    });
+
+    document.addEventListener("DOMContentLoaded", loadEvents);
+  </script>
+
+</body>
+</html>
