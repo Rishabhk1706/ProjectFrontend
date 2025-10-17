@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Dashboard</title>
+  <link rel="stylesheet" href="dashboard.css" />
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+  <div class="dashboard-container">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-content">
+        <div class="logo">
+          <div class="logo-icon" onclick="navigateTo('/home')">🏠</div>
+          <h1>Dashboard</h1>
+        </div>
+        
+        <div class="profile-menu">
+          <div class="profile-trigger" onclick="toggleProfileMenu()">
+            <div class="profile-info">
+              <div class="profile-name">Loading...</div>
+              <div class="profile-role">Loading...</div>
+            </div>
+            <img src="profile.jpg" alt="Profile" class="profile-photo" />
+          </div>
+          <div class="dropdown-menu" id="profileDropdown">
+            <div class="dropdown-item" onclick="navigateTo('/profile/:id')">
+              <span>👤</span>
+              <span>My Profile</span>
+            </div>
+            <div class="dropdown-item" onclick="logout()">
+              <span>🚪</span>
+              <span>Logout</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="slideshow-container">
+      <div class="slide fade">
+        <img src="event.png" alt="Slide 1" onclick="navigateTo('/events')" style="cursor: pointer;">
+        <div class="caption">Connect with Amazing Peers at our Events</div>
+      </div>
+      <div class="slide fade">
+        <img src="project.png" alt="Slide 2" onclick="navigateTo('/projects')" style="cursor: pointer;">
+        <div class="caption">Collaborate in Valueable Projects</div>
+      </div>
+      <div class="slide fade">
+        <img src="team.png" alt="Slide 3" onclick="navigateTo('/match-requests')" style="cursor: pointer;">
+        <div class="caption">Make Teams for the Event</div>
+      </div>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="stats-grid">
+      <div class="stat-card" onclick="navigateTo('/events')">
+        <div class="stat-number">0</div>
+        <div class="stat-label">Upcoming Events</div>
+      </div>
+      <div class="stat-card" onclick="navigateTo('/projects')">
+        <div class="stat-number">0</div>
+        <div class="stat-label">Active Projects</div>
+      </div>
+      <div class="stat-card" onclick="navigateTo('/match-requests')">
+        <div class="stat-number">0</div>
+        <div class="stat-label">Team Requests</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">0</div>
+        <div class="stat-label">Total Events</div>
+      </div>
+    </div>
+
+    <!-- Navigation Cards -->
+    <div class="main-content">
+      <!-- Events -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">📅</div>
+          <div class="card-title">Events</div>
+        </div>
+        <div class="menu-list">
+          <div class="menu-item" onclick="navigateTo('/events')">
+            <div class="menu-item-content">
+              <div class="menu-item-title">All Events</div>
+              <div class="menu-item-desc">Browse upcoming/past events</div>
+            </div>
+            <div class="menu-item-arrow">→</div>
+          </div>
+          <div class="menu-item" onclick="navigateTo('/events/new')">
+            <div class="menu-item-content">
+              <div class="menu-item-title">Post an Event</div>
+              <div class="menu-item-desc">Clubs/students create events</div>
+            </div>
+            <div class="menu-item-arrow">→</div>
+          </div>
+          <div class="menu-item" onclick="navigateTo('/events/update')">
+            <div class="menu-item-content">
+              <div class="menu-item-title">My Events</div>
+              <div class="menu-item-desc">Update your events</div>
+            </div>
+            <div class="menu-item-arrow">→</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Match Requests -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">🤝</div>
+          <div class="card-title">Team Requests</div>
+        </div>
+        <div class="menu-list">
+          <div class="menu-item" onclick="navigateTo('/match-requests')">
+            <div class="menu-item-content">
+              <div class="menu-item-title">All Team Requests</div>
+              <div class="menu-item-desc">Find team for your participated event</div>
+            </div>
+            <div class="menu-item-arrow">→</div>
+          </div>
+          <div class="menu-item" onclick="navigateTo('/match-requests/new')">
+            <div class="menu-item-content">
+              <div class="menu-item-title">Create Team Request</div>
+              <div class="menu-item-desc">Team-finding request for event</div>
+            </div>
+            <div class="menu-item-arrow">→</div>
+          </div>
+          <div class="menu-item" onclick="navigateTo('/match-requests/update')">
+            <div class="menu-item-content">
+              <div class="menu-item-title">My Team Request</div>
+              <div class="menu-item-desc">Team request update</div>
+            </div>
+            <div class="menu-item-arrow">→</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Projects -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">💼</div>
+          <div class="card-title">Projects</div>
+        </div>
+        <div class="menu-list">
+          <div class="menu-item" onclick="navigateTo('/projects')">
+            <div class="menu-item-content">
+              <div class="menu-item-title">All Projects</div>
+              <div class="menu-item-desc">View posted projects</div>
+            </div>
+            <div class="menu-item-arrow">→</div>
+          </div>
+          <div class="menu-item" onclick="navigateTo('/projects/new')">
+            <div class="menu-item-content">
+              <div class="menu-item-title">Post a Project</div>
+              <div class="menu-item-desc">Share a new project idea</div>
+            </div>
+            <div class="menu-item-arrow">→</div>
+          </div>
+          <div class="menu-item" onclick="navigateTo('/projects/update')">
+            <div class="menu-item-content">
+              <div class="menu-item-title">My Project</div>
+              <div class="menu-item-desc">Update project posting</div>
+            </div>
+            <div class="menu-item-arrow">→</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Access -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">⚙️</div>
+          <div class="card-title">Quick Access</div>
+        </div>
+        <div class="menu-list">
+          <div class="menu-item" onclick="navigateTo('/home')">
+            <div class="menu-item-content">
+              <div class="menu-item-title">Home</div>
+            </div>
+            <div class="menu-item-arrow">→</div>
+          </div>
+          <div class="menu-item" onclick="navigateTo('/about')">
+            <div class="menu-item-content">
+              <div class="menu-item-title">About</div>
+            </div>
+            <div class="menu-item-arrow">→</div>
+          </div>
+          <div class="menu-item" onclick="navigateTo('/colleges')">
+            <div class="menu-item-content">
+              <div class="menu-item-title">Colleges</div>
+            </div>
+            <div class="menu-item-arrow">→</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <div class="footer-content">
+        <div class="footer-section">
+            <h3>Hackathon Accumulator</h3>
+            <p>Empowering students to connect, create, and collaborate in the world of technology and innovation.</p>
+        </div>
+        <div class="footer-section">
+            <h3>Quick Links</h3>
+            <p><a href="about.html">About Us</a></p>
+            <p><a href="colleges.html">Explore Colleges</a></p>
+            <p><a href="allevents.html">Browse Events</a></p>
+            <p><a href="allprojects.html">View Projects</a></p>
+        </div>
+        <div class="footer-section">
+            <h3>For Students</h3>
+            <p><a href="create.html">Sign Up</a></p>
+            <p><a href="login.html">Login</a></p>
+            <p><a href="dashboard.html">Dashboard</a></p>
+            <p><a href="/help">Help Center</a></p>
+        </div>
+        <div class="footer-section">
+            <h3>Contact</h3>
+            <p>Email: hello@hackathonaccumulator.com</p>
+            <p>Follow us on social media for updates and announcements.</p>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>&copy; 2025 Hackathon Accumulator. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Toggle profile dropdown
+    function toggleProfileMenu() {
+        document.getElementById("profileDropdown").classList.toggle("active");
+        document.querySelector(".profile-trigger").classList.toggle("active");
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener("click", function (e) {
+        const profileMenu = document.querySelector(".profile-menu");
+        if (!profileMenu.contains(e.target)) {
+        document.getElementById("profileDropdown").classList.remove("active");
+        document.querySelector(".profile-trigger").classList.remove("active");
+        }
+    });
+
+    // Navigation placeholder
+    function navigateTo(route) {
+        if (route === '/profile/:id') {
+            window.location.href = 'profile.html';
+        }
+        else if (route === '/dashboard'){
+            window.location.href = 'dashboard.html';
+        }
+        else if (route === '/match-requests'){
+            window.location.href = 'allmatch.html';
+        }
+        else if (route === '/match-requests/new'){
+            window.location.href = 'creatematch.html';
+        }
+        else if (route === '/match-requests/update'){
+            window.location.href = 'updatematch.html';
+        }
+        else if (route === '/projects'){
+            window.location.href = 'allprojects.html';
+        }
+        else if (route === '/projects/new'){
+            window.location.href = 'createproject.html';
+        }
+        else if (route === '/projects/update'){
+            window.location.href = 'updateproject.html';
+        }
+        else if (route === '/events'){
+            window.location.href = 'allevents.html';
+        }
+        else if (route === '/events/new'){
+            window.location.href = 'createevent.html';
+        }
+        else if (route === '/events/update'){
+            window.location.href = 'updateevent.html';
+        }
+        else if (route === '/colleges'){
+            window.location.href = 'colleges.html';
+        }
+        else if (route === '/home'){
+            window.location.href = 'home.html';
+        }
+        else if (route === '/about'){
+            window.location.href = 'about.html';
+        }
+        else {
+            window.location.href = route;
+        }
+
+    }
+
+    function logout() {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        window.location.href = "home.html";
+    }
+
+    async function loadDashboard() {
+        const token = localStorage.getItem("token");
+        const userStr = localStorage.getItem("user");
+        const user = userStr ? JSON.parse(userStr) : null;
+        const userId = user?._id;
+
+        if (!token || !userId) {
+          return (window.location.href = "login.html");
+        }
+
+        try {
+        // Set profile info
+        document.querySelector(".profile-name").textContent = user.name;
+        document.querySelector(".profile-role").textContent = user.role || "Student";
+
+        // Events
+        const eventsRes = await axios.get("https://hackathonaccumulator.onrender.com/api/events", {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        const allEvents = eventsRes.data;
+        const now = new Date();
+        const upcomingEvents = allEvents.filter(e => {
+            const eventDate = new Date(e.startDate);
+            return !isNaN(eventDate) && eventDate > new Date();
+        }).length;
+
+        const totalEvents = allEvents.length;
+
+        // Projects
+        const projectsRes = await axios.get("https://hackathonaccumulator.onrender.com/api/projects", {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        const activeProjects = projectsRes.data.filter(p => p.status === "Open").length;
+
+        // Match Requests
+        const matchRes = await axios.get("https://hackathonaccumulator.onrender.com/api/match-requests", {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        const matchRequests = matchRes.data.length;
+
+        // Fill stats
+        const numbers = [upcomingEvents, activeProjects, matchRequests, totalEvents];
+        document.querySelectorAll(".stat-number").forEach((el, i) => {
+            el.textContent = numbers[i];
+        });
+        } catch (err) {
+        console.error("Dashboard error:", err);
+        alert("Session expired or network error.");
+        window.location.href = "login.html";
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        loadDashboard();
+
+        // Optional animation
+        const cards = document.querySelectorAll(".card");
+        const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+            entry.target.style.opacity = "1";
+            entry.target.style.transform = "translateY(0)";
+            }
+        });
+        });
+
+        cards.forEach(card => {
+        card.style.opacity = "0";
+        card.style.transform = "translateY(20px)";
+        card.style.transition = "all 0.6s ease";
+        observer.observe(card);
+        });
+    });
+
+    let slideIndex = 0;
+    function showSlides() {
+      const slides = document.getElementsByClassName("slide");
+      for (let i = 0; i < slides.length; i++) {
+        slides[i].style.display = "none";  
+      }
+      slideIndex++;
+      if (slideIndex > slides.length) { slideIndex = 1 }    
+      slides[slideIndex - 1].style.display = "block";  
+      setTimeout(showSlides, 3000); // Change image every 3 seconds
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      showSlides(); // Start the slideshow
+    });
+  </script>
+</body>
+</html>
