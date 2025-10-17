@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Profile</title>
+  <link rel="stylesheet" href="profile.css" />
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+    <div class="navbar-container">
+      <a href="#" class="navbar-brand">
+        <img src="profile.jpg" alt="Profile" class="profile-image" />
+        MyProfile
+      </a>
+      
+      <ul class="navbar-nav">
+        <li><a href="profile.html" class="active">Profile</a></li>
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="#" onclick="logout()">Logout</a></li>
+      </ul>
+
+      <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+        ☰
+      </button>
+
+      <div class="mobile-menu" id="mobileMenu">
+        <ul>
+          <li><a href="profile.html" class="active">Profile</a></li>
+          <li><a href="dashboard.html">Dashboard</a></li>
+          <li><a href="#">Projects</a></li>
+          <li><a href="#" onclick="logout()">Logout</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  
+  <div class="container">
+    <h1>My Profile</h1>
+    
+    <div class="profile-header">
+      <img src="profile.jpg" alt="Profile Picture" class="profile-image" />
+      <div class="profile-info">
+        <h2>Loading...</h2>
+        <p>Please wait...</p>
+      </div>
+    </div>
+
+    <form id="profileForm">
+      <div class="form-group">
+        <label for="name">Name</label>
+        <input type="text" id="name" required />
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" readonly />
+      </div>
+
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" readonly />
+      </div>
+
+      <div class="form-group">
+        <label for="college">College</label>
+        <input type="text" id="college" readonly />
+      </div>
+
+      <div class="form-group">
+        <label for="resumeLink">Resume Link</label>
+        <input type="url" id="resumeLink" />
+      </div>
+
+      <div class="form-group">
+        <label for="githubProfile">GitHub Profile</label>
+        <input type="url" id="githubProfile" />
+      </div>
+
+      <div class="form-group">
+        <label for="interests">Interests (comma separated)</label>
+        <input type="text" id="interests" />
+      </div>
+
+      <div class="form-group">
+        <label for="skills">Skills (comma separated)</label>
+        <input type="text" id="skills" />
+      </div>
+
+      <button type="submit">Update Profile</button>
+    </form>
+  </div>
+
+  <script>
+    function logout() {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        window.location.href = "login.html";
+    }
+
+    function toggleMobileMenu() {
+      const mobileMenu = document.getElementById('mobileMenu');
+      mobileMenu.classList.toggle('active');
+    }
+
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', function(event) {
+      const mobileMenu = document.getElementById('mobileMenu');
+      const toggleButton = document.querySelector('.mobile-menu-toggle');
+      
+      if (!mobileMenu.contains(event.target) && !toggleButton.contains(event.target)) {
+        mobileMenu.classList.remove('active');
+      }
+    });
+
+    // Your original authentication and API logic
+    const form = document.getElementById("profileForm");
+    const token = localStorage.getItem("token");
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    if (!token || !user?._id) {
+      alert("Please login first.");
+      window.location.href = "login.html";
+    }
+
+    async function loadProfile() {
+      try {
+        const res = await axios.get(`https://hackathonaccumulator.onrender.com/api/users/${user._id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        const data = res.data;
+        document.getElementById("name").value = data.name;
+        document.getElementById("email").value = data.email;
+        document.getElementById("username").value = data.username;
+        document.getElementById("college").value = data.college?.name || "";
+        document.getElementById("resumeLink").value = data.resumeLink || "";
+        document.getElementById("githubProfile").value = data.githubProfile || "";
+        document.getElementById("interests").value = data.interests?.join(", ") || "";
+        document.getElementById("skills").value = data.skills?.join(", ") || "";
+        
+        // Update profile header with user data
+        const profileInfo = document.querySelector('.profile-info h2');
+        const profileRole = document.querySelector('.profile-info p');
+        if (profileInfo) profileInfo.textContent = data.name;
+        if (profileRole) profileRole.textContent = data.college?.name || 'Student';
+      } catch (err) {
+        console.error("Error loading profile:", err);
+        alert("Could not load profile.");
+      }
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const updatedData = {
+        name: document.getElementById("name").value,
+        resumeLink: document.getElementById("resumeLink").value,
+        githubProfile: document.getElementById("githubProfile").value,
+        interests: document.getElementById("interests").value.split(",").map(s => s.trim()),
+        skills: document.getElementById("skills").value.split(",").map(s => s.trim()),
+      };
+
+      try {
+        const res = await axios.put(`https://hackathonaccumulator.onrender.com/api/users/${user._id}`, updatedData, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        alert("Profile updated successfully!");
+        localStorage.setItem("user", JSON.stringify(res.data));
+        
+        // Update profile header with new data
+        const profileInfo = document.querySelector('.profile-info h2');
+        if (profileInfo) profileInfo.textContent = updatedData.name;
+      } catch (err) {
+        console.error("Update failed:", err);
+        alert("Failed to update profile.");
+      }
+    });
+
+    document.addEventListener("DOMContentLoaded", loadProfile);
+  </script>
+</body>
+</html>
