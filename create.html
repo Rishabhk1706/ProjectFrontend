@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Account</title>
+  <link rel="stylesheet" href="create.css" />
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+  <header>
+      <nav>
+          <div class="logo">Hackathon Accumulator</div>
+          <ul class="nav-links">
+              <li><a href="home.html">Home</a></li>
+              <li><a href="colleges.html">Colleges</a></li>
+              <li><a href="about.html">About</a></li>
+              <li><a href="dashboard.html">Dashboard</a></li>
+          </ul>
+          <button class="mobile-menu-toggle">☰</button>
+      </nav>
+  </header>
+
+  <div class="container">
+    <div class="left-panel">
+      <div class="logo">Hackathon Accumulator</div>
+    </div>
+
+    <div class="right-panel">
+      <h2>Create an account</h2>
+      <p class="sub-text">
+        Already have an account? <a href="login.html">Log in</a>
+      </p>
+
+      <form id="registerForm">
+        <input type="text" id="name" placeholder="Full Name" required />
+        <input type="text" id="username" placeholder="Username" required />
+        <select id="college" required>
+          <option value="" disabled selected>Select College</option>
+        </select>
+        <div class="email-container">
+          <input type="text" id="email-prefix" placeholder="College Email" required />
+          <span id="email-domain" class="email-domain-placeholder">domain.ac.in</span>
+        </div>
+        <input type="password" id="password" placeholder="Enter your password" required />
+
+
+        <div class="terms">
+          <input type="checkbox" id="terms" required />
+          <label for="terms">I agree to the <a href="#">Terms & Conditions</a></label>
+        </div>
+
+        <button type="submit" class="create-btn">Create account</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        window.location.href = "dashboard.html";
+      }
+    });
+
+    // Get references to the new email elements
+    const collegeSelect = document.getElementById("college");
+    const emailPrefixInput = document.getElementById("email-prefix");
+    const emailDomainSpan = document.getElementById("email-domain");
+
+    // Fetch and populate colleges on page load
+    window.addEventListener("DOMContentLoaded", async () => {
+      try {
+        const res = await axios.get("https://hackathonaccumulator.onrender.com/api/colleges");
+        let colleges = res.data;
+
+        // Sort alphabetically by college name
+        colleges.sort((a, b) => a.name.localeCompare(b.name));
+
+        colleges.forEach(college => {
+          const option = document.createElement("option");
+          option.value = college._id;
+          // IMPORTANT: Store the domain in a data attribute
+          option.setAttribute('data-domain', college.domain); 
+          option.textContent = `${college.name} - ${college.location}`;
+          collegeSelect.appendChild(option);
+        });
+      } catch (err) {
+        console.error("Failed to fetch colleges:", err);
+        alert("Could not load colleges. Please try again later.");
+      }
+    });
+
+    // ** NEW **: Add event listener to update domain when college changes
+    collegeSelect.addEventListener('change', (e) => {
+      const selectedOption = e.target.options[e.target.selectedIndex];
+      const domain = selectedOption.getAttribute('data-domain');
+      
+      if (domain) {
+        emailDomainSpan.textContent = `@${domain}`;
+        emailDomainSpan.classList.remove('email-domain-placeholder');
+        emailPrefixInput.focus(); 
+      } else {
+        emailDomainSpan.textContent = '@your-college-domain.ac.in';
+        emailDomainSpan.classList.add('email-domain-placeholder');
+      }
+    });
+
+    // Mobile menu toggle
+    const mobileToggle = document.querySelector('.mobile-menu-toggle');
+    const navLinks = document.querySelector('.nav-links');
+    mobileToggle.addEventListener('click', () => {
+        navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
+        if (navLinks.style.display === 'flex') {
+            navLinks.style.flexDirection = 'column';
+            navLinks.style.position = 'absolute';
+            navLinks.style.top = '100%';
+            navLinks.style.left = '0';
+            navLinks.style.right = '0';
+            navLinks.style.background = 'rgba(102, 126, 234, 0.95)';
+            navLinks.style.padding = '1rem';
+            navLinks.style.borderRadius = '0 0 1rem 1rem';
+        }
+    });
+
+    // ** UPDATED **: Handle register form submit
+    const form = document.getElementById("registerForm");
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById("name").value;
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+      const college = collegeSelect.value;
+      
+      // Construct the full email address
+      const emailPrefix = emailPrefixInput.value;
+      const selectedOption = collegeSelect.options[collegeSelect.selectedIndex];
+      const domain = selectedOption.getAttribute('data-domain');
+
+      // Validation check
+      if (!domain) {
+        alert("Please select a valid college to complete your email address.");
+        return;
+      }
+
+      const email = `${emailPrefix}@${domain}`;
+
+      try {
+        const res = await axios.post("https://hackathonaccumulator.onrender.com/api/auth/register", {
+          name,
+          username,
+          email, // Send the newly constructed full email
+          password,
+          college,
+        });
+
+        alert("Account created successfully!");
+        window.location.href = "login.html";
+      } catch (error) {
+        const msg = error.response?.data?.error || "Registration failed";
+        alert(msg);
+      }
+    });
+  </script>
+</body>
+</html>
