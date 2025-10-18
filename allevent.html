@@ -101,7 +101,7 @@
       }
 
       try {
-        const res = await axios.get("http://localhost:3000/api/events", {
+        const res = await axios.get("https://hackathonaccumulator.onrender.com/api/events", {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -170,5 +170,5 @@
     document.addEventListener("DOMContentLoaded", loadEvents);
   </script>
 
-</body> 
+</body>
 </html>
