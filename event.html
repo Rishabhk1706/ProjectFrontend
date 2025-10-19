@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Event Details</title>
+  <link rel="stylesheet" href="event.css" />
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+  <a href="allevents.html" class="back-btn">Back</a>
+  <div class="event-details">
+    <h1 id="title">Loading...</h1>
+    <p><strong>Status:</strong> <span id="status" class="status-badge"></span></p>
+    <p><strong>Type:</strong> <span id="type"></span></p>
+    <p><strong>Venue:</strong> <span id="venue"></span></p>
+    <p><strong>Dates:</strong> <span id="dates"></span></p>
+    <p><strong>Time:</strong> <span id="times"></span></p> 
+    <p><strong>Posted by:</strong> <span id="postedBy"></span></p>
+    <p><strong>College:</strong> <span id="college"></span></p>
+    <p><strong>Max Participants:</strong> <span id="maxParticipants"></span></p>
+    <p><strong>Registered Users:</strong> <span id="registeredUsers"></span></p>
+    <p><strong>Description:</strong></p>
+    <div id="description" class="description-box"></div>
+
+    <div id="registerSection">
+      <button id="registerBtn">Register</button>
+      <p id="registerStatus"></p>
+    </div>
+  </div>
+
+  <script>
+    const token = localStorage.getItem("token");
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!token || !user?._id) {
+      alert("Please login first.");
+      window.location.href = "login.html";
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const eventId = params.get("id");
+
+    if (!eventId || eventId === "null") {
+      alert("Please choose the event.");
+      window.location.href = "allevents.html";
+    }
+
+    function formatDate(dateStr) {
+      const date = new Date(dateStr);
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = String(date.getFullYear()).slice(-2);
+      return `${day}/${month}/${year}`;
+    }
+
+    function formatTime(timeStr) {
+      if (!timeStr) return "N/A";
+      const [h, m] = timeStr.split(":").map(Number);
+      const ampm = h >= 12 ? "PM" : "AM";
+      const hour12 = h % 12 || 12;
+      return `${hour12}:${m.toString().padStart(2, "0")} ${ampm}`;
+    }
+
+    function getStatusClass(status) {
+      const s = (status || "").toLowerCase();
+      if (s === "upcoming") return "status-active";
+      if (s === "ongoing") return "status-pending";
+      if (s === "past") return "status-completed";
+      return "";
+    }
+
+    let eventData = null;
+
+    async function loadEventDetails() {
+      try {
+        const res = await axios.get(`https://hackathonaccumulator.onrender.com/api/events/${eventId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        eventData = res.data;
+
+        document.getElementById("title").textContent = eventData.title || "Untitled";
+
+        // 🟡 Compute actual status based on dates
+        const now = new Date();
+        const start = new Date(eventData.startDate);
+        const end = new Date(eventData.endDate);
+
+        let actualStatus = "upcoming";
+        if (now >= start && now <= end) actualStatus = "ongoing";
+        else if (now > end) actualStatus = "past";
+
+        document.getElementById("status").textContent = actualStatus;
+        document.getElementById("status").classList.add(getStatusClass(actualStatus));
+
+        document.getElementById("type").textContent = eventData.eventType || "N/A";
+
+        const venue = (eventData.eventType === "In-Person" || eventData.eventType === "Hybrid")
+          ? (eventData.location || "Not specified")
+          : "Virtual / Not specified";
+        document.getElementById("venue").textContent = venue;
+
+        document.getElementById("dates").textContent = `${formatDate(eventData.startDate)} to ${formatDate(eventData.endDate)}`;
+        document.getElementById("times").textContent =
+          `${formatTime(eventData.startTime)} – ${formatTime(eventData.endTime)}`;
+        document.getElementById("maxParticipants").textContent = eventData.maxParticipants || "N/A";
+        document.getElementById("registeredUsers").textContent = eventData.registeredUsers?.length || 0;
+        document.getElementById("description").innerText = eventData.description || "No description.";
+        document.getElementById("postedBy").textContent = eventData.createdBy?.name || "Unknown";
+        document.getElementById("college").textContent = eventData.college?.name || "Unknown";
+
+        // 🟡 Disable register button if necessary
+        const registeredUserIds = eventData.registeredUsers.map(u => typeof u === "object" ? u._id : u);
+        const alreadyRegistered = registeredUserIds.includes(user._id);
+
+        const btn = document.getElementById("registerBtn");
+        const status = document.getElementById("registerStatus");
+
+        if (alreadyRegistered) {
+          btn.disabled = true;
+          btn.textContent = "Already Registered";
+          status.textContent = "";
+        } else if (actualStatus === "ongoing" || actualStatus === "past") {
+          btn.disabled = true;
+          btn.textContent = "Registration Closed";
+          status.textContent = "";
+        } else if (eventData.registeredUsers.length >= eventData.maxParticipants) {
+          btn.disabled = true;
+          btn.textContent = "Event Full";
+          status.textContent = "";
+        }
+
+      } catch (err) {
+        console.error("Error loading event:", err);
+        alert("Could not load event details.");
+      }
+    }
+
+    async function registerForEvent() {
+      try {
+        const res = await axios.post(`https://hackathonaccumulator.onrender.com/api/events/${eventId}/register`, {}, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        document.getElementById("registerBtn").disabled = true;
+        document.getElementById("registerBtn").textContent = "Registered";
+        document.getElementById("registerStatus").textContent = "You have successfully registered.";
+        document.getElementById("registeredUsers").textContent = (eventData.registeredUsers.length + 1).toString();
+
+      } catch (err) {
+        console.error("Registration failed:", err);
+        alert(err?.response?.data?.error || "Could not register.");
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadEventDetails();
+      document.getElementById("registerBtn").addEventListener("click", registerForEvent);
+    });
+  </script>
+</body>
+</html>
