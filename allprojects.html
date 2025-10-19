@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>All Projects</title>
+  <link rel="stylesheet" href="allprojects.css" />
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <a href="dashboard.html" class="logo">Hackathon Accumulator</a>
+      <ul class="nav-links">
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="allevents.html">Events</a></li>
+        <li><a href="allmatch.html">Team Requests</a></li>
+        <li><a href="profile.html">Profile</a></li>
+        <li><a href="#" onclick="logout()">Logout</a></li>
+      </ul>
+      <div class="hamburger" onclick="toggleMenu()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <div class="project-container">
+      <h1>All Projects</h1>
+      <div class="search-bar-container">
+        <input type="text" id="searchInput" placeholder="Search projects..." oninput="filterProjects()" />
+      </div>
+      <div id="projectList" class="project-list">
+        <div class="loading">Loading projects...</div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const userCache = {}; // Cache user details to avoid multiple API calls
+
+    // Mobile menu toggle
+    function toggleMenu() {
+      const navLinks = document.querySelector('.nav-links');
+      const hamburger = document.querySelector('.hamburger');
+      
+      navLinks.classList.toggle('active');
+      hamburger.classList.toggle('active');
+    }
+
+    // Close mobile menu when clicking on a link
+    document.querySelectorAll('.nav-links a').forEach(link => {
+      link.addEventListener('click', () => {
+        const navLinks = document.querySelector('.nav-links');
+        const hamburger = document.querySelector('.hamburger');
+        
+        navLinks.classList.remove('active');
+        hamburger.classList.remove('active');
+      });
+    });
+
+    // Logout function
+    function logout() {
+      const token = localStorage.getItem('token');
+      if (token) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        alert('Logged out successfully!');
+        window.location.href = 'login.html';
+      }
+    }
+
+    // Utility: Normalize ID (handles object or string)
+    function getUserId(postedBy) {
+      if (typeof postedBy === "string") return postedBy;
+      if (typeof postedBy === "object" && postedBy._id) return postedBy._id;
+      return null;
+    }
+
+    // Fetch user details safely with caching
+    async function getUserInfo(userId, token) {
+      if (!userId) return { name: "Unknown", college: { name: "Not specified" } };
+
+      if (userCache[userId]) return userCache[userId];
+
+      try {
+        const res = await axios.get(`https://hackathonaccumulator.onrender.com/api/users/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        userCache[userId] = res.data;
+        return res.data;
+      } catch (err) {
+        console.error(`Error fetching user ${userId}:`, err);
+        return { name: "Unknown", college: { name: "Not specified" } };
+      }
+    }
+
+    function getStatusBadge(status) {
+      const statusLower = (status || 'unknown').toLowerCase();
+      let className = 'status-badge';
+      
+      switch (statusLower) {
+        case 'active':
+        case 'in progress':
+          className += ' status-active';
+          break;
+        case 'completed':
+        case 'finished':
+          className += ' status-completed';
+          break;
+        case 'pending':
+        case 'draft':
+          className += ' status-pending';
+          break;
+        default:
+          className += ' status-pending';
+      }
+      
+      return `<span class="${className}">${status || 'Unknown'}</span>`;
+    }
+
+    function formatDate(dateStr) {
+      const date = new Date(dateStr);
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = String(date.getFullYear()).slice(-2);
+      return `${day}/${month}/${year}`;
+    }
+
+    function filterProjects() {
+      const input = document.getElementById("searchInput").value.toLowerCase();
+      const items = document.querySelectorAll(".project-item");
+
+      items.forEach(item => {
+        const title = item.querySelector("h3").textContent.toLowerCase();
+        if (title.includes(input)) {
+          item.style.display = "";
+        } else {
+          item.style.display = "none";
+        }
+      });
+    }
+
+    async function loadProjects() {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Please login first.");
+        return window.location.href = "login.html";
+      }
+
+      try {
+        const res = await axios.get("https://hackathonaccumulator.onrender.com/api/projects", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        const projects = res.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        const listEl = document.getElementById("projectList");
+        listEl.innerHTML = "";
+
+        if (projects.length === 0) {
+          listEl.innerHTML = '<div class="no-projects">No projects found. Be the first to create one!</div>';
+          return;
+        }
+
+        for (const project of projects) {
+          const userId = getUserId(project.postedBy);
+          const userInfo = await getUserInfo(userId, token);
+
+          const item = document.createElement("div");
+          item.className = "project-item";
+          item.innerHTML = `
+            <h3>${project.title}</h3>
+            <p><strong>Status:</strong> ${getStatusBadge(project.status)}</p>
+            <p><strong>Posted by:</strong> ${userInfo.name || "Unknown"}</p>
+            <p><strong>College:</strong> ${userInfo.college?.name || "Not specified"}</p>
+            <p><strong>Created:</strong> ${formatDate(project.createdAt)}</p>
+          `;
+          
+          // Make item clickable
+          item.addEventListener("click", () => {
+            window.location.href = `project.html?id=${project._id}`;
+          });
+
+          listEl.appendChild(item);
+        }
+
+      } catch (err) {
+        console.error("Error loading projects:", err);
+        const listEl = document.getElementById("projectList");
+        listEl.innerHTML = '<div class="no-projects">Could not fetch projects. Please try again later.</div>';
+      }
+    }
+
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', (e) => {
+      const navLinks = document.querySelector('.nav-links');
+      const hamburger = document.querySelector('.hamburger');
+      const navbar = document.querySelector('.navbar');
+      
+      if (!navbar.contains(e.target) && navLinks.classList.contains('active')) {
+        navLinks.classList.remove('active');
+        hamburger.classList.remove('active');
+      }
+    });
+
+    document.addEventListener("DOMContentLoaded", loadProjects);
+  </script>
+</body>
+</html>
