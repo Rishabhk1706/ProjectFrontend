@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Profile</title>
+  <link rel="stylesheet" href="userprofile.css" />
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+  <button class="back-button" onclick="history.back()">Back</button>
+  
+  <div class="container">
+    <h1>User Profile</h1>
+    
+    <div class="profile-header">
+      <img src="profile.jpg" alt="Profile Picture" class="profile-image" />
+      <div class="profile-info">
+        <h2 id="userName">Loading...</h2>
+        <p id="userCollege">Please wait...</p>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="email" readonly />
+    </div>
+
+    <div class="form-group">
+        <label>Interests</label>
+        <input type="text" id="interests" readonly />
+    </div>
+    
+    <div class="form-group">
+        <label>Skills</label>
+        <input type="text" id="skills" readonly />
+    </div>
+
+    <div class="form-group">
+      <label>Resume Link: <a id="resumeLink" href="#" target="_blank">View Resume</a> </label>
+    </div>
+
+    <div class="form-group">
+      <label>GitHub Profile: <a id="githubProfile" href="#" target="_blank">Visit GitHub</a> </label>
+    </div>
+  </div>
+
+  <script>
+    const token = localStorage.getItem("token");
+    const params = new URLSearchParams(window.location.search);
+    const userId = params.get("id");
+
+    if (!token || !userId) {
+      alert("Invalid access.");
+      window.location.href = "login.html";
+    }
+
+    async function loadUserProfile() {
+      try {
+        const res = await axios.get(`https://hackathonaccumulator.onrender.com/api/users/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        const data = res.data;
+        document.getElementById("userName").innerText = data.name;
+        document.getElementById("userCollege").innerText = data.college?.name || "Student";
+        document.getElementById("email").value = data.email || "";
+        document.getElementById("resumeLink").href = data.resumeLink || "#";
+        document.getElementById("githubProfile").href = data.githubProfile || "#";
+        document.getElementById("interests").value = (data.interests || []).join(", ");
+        document.getElementById("skills").value = (data.skills || []).join(", ");
+      } catch (err) {
+        console.error("Error loading user profile:", err);
+        alert("Could not load profile.");
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", loadUserProfile);
+  </script>
+</body>
+</html>
