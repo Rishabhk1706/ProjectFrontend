@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>All Match Requests</title>
+  <link rel="stylesheet" href="allmatch.css" />
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <a href="dashboard.html" class="logo">Hackathon Accumulator</a>
+      <ul class="nav-links">
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="allprojects.html">Projects</a></li>
+        <li><a href="allevents.html">Events</a></li>
+        <li><a href="profile.html">Profile</a></li>
+        <li><a href="#" onclick="logout()">Logout</a></li>
+      </ul>
+      <div class="hamburger" onclick="toggleMenu()">
+        <span></span><span></span><span></span>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <div class="project-container">
+      <h1>Team Requests</h1>
+      <div class="search-bar-container">
+        <input type="text" id="searchInput" placeholder="Search events..." oninput="filterMatches()" />
+      </div>
+      <div id="matchList" class="project-list">
+        <div class="loading">Loading match requests...</div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const token = localStorage.getItem("token");
+
+    function toggleMenu() {
+      document.querySelector('.nav-links').classList.toggle('active');
+      document.querySelector('.hamburger').classList.toggle('active');
+    }
+
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      alert('Logged out successfully!');
+      window.location.href = 'login.html';
+    }
+
+    function computeStatus(status) {
+      if (status === "Full") return "Full";
+      if (status === "Past") return "Past";
+      return "Pending";
+    }
+
+    function getStatusClass(status) {
+      if (status === "Full") return "status-completed";
+      if (status === "Past") return "status-completed";
+      return "status-active";
+    }
+
+    function filterMatches() {
+      const input = document.getElementById("searchInput").value.toLowerCase();
+      const items = document.querySelectorAll(".project-item");
+
+      items.forEach(item => {
+        const title = item.querySelector("h3").textContent.toLowerCase();
+        const creator = item.querySelector("p:nth-of-type(3)").textContent.toLowerCase();
+        if (title.includes(input)){
+          item.style.display = "";
+        } else {
+          item.style.display = "none";
+        }
+      });
+    }
+
+    async function loadMatchRequests() {
+      if (!token) {
+        alert("Please login first.");
+        return window.location.href = "login.html";
+      }
+
+      try {
+        const res = await axios.get("https://hackathonaccumulator.onrender.com/api/match-requests", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        const matchList = res.data;
+        const listEl = document.getElementById("matchList");
+        listEl.innerHTML = "";
+
+        if (matchList.length === 0) {
+          listEl.innerHTML = '<div class="no-projects">No match requests available. Stay tuned!</div>';
+          return;
+        }
+
+        for (const req of matchList) {
+          const item = document.createElement("div");
+          item.className = "project-item";
+
+          const status = computeStatus(req.status);
+          const badgeClass = getStatusClass(status);
+
+          item.innerHTML = `
+            <h3>${req.event?.title || "No Event Title"}</h3>
+            <p><strong>Status:</strong> <span class="status-badge ${badgeClass}">${status}</span></p>
+            <p><strong>Team Size:</strong> ${req.maxTeamSize}</p>
+            <p><strong>Created By:</strong> ${req.user?.name || "Unknown"}</p>
+          `;
+
+          item.addEventListener("click", () => {
+            window.location.href = `match.html?id=${req._id}`;
+          });
+
+          listEl.appendChild(item);
+        }
+
+      } catch (err) {
+        console.error("Error loading match requests:", err);
+        document.getElementById("matchList").innerHTML =
+          '<div class="no-projects">Error loading match requests.</div>';
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", loadMatchRequests);
+  </script>
+</body>
+</html>
