@@ -1,0 +1,133 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.6;
+  background: white;
+  color: #333;
+  padding-top: 40px;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 600px;
+  margin: 2rem auto;
+  background: white;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+h1 {
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
+  text-align: center;
+  color: linear-gradient(135deg, #0a0a0a, #1a1f25, #2a2f35);
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, #0a0a0a, #1a1f25, #2a2f35);
+  border-radius: 10px;
+}
+
+.profile-header .profile-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 3px solid #858585;
+  object-fit: cover;
+}
+
+.profile-info h2 {
+  color: white;
+  margin-bottom: 0.5rem;
+}
+
+.profile-info p {
+  color: white;
+  font-size: 0.9rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: linear-gradient(135deg, #0a0a0a, #1a1f25, #2a2f35);
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: #f8f9fa;
+  color: black;
+  cursor: not-allowed;
+}
+
+a {
+  display: inline-block;
+  margin-top: 5px;
+  color: rgb(64, 64, 223);
+  font-weight: 500;
+  text-decoration: underline;
+}
+
+.back-button {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background: linear-gradient(135deg, #0a0a0a, #1a1f25, #2a2f35);
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+}
+
+.back-button:hover {
+  background: #f1f1f1;
+}
+
+
+@media (max-width: 768px) {
+  .container {
+    margin: 1rem;
+    padding: 20px;
+    margin-top: 30px;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  .profile-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .profile-header .profile-image {
+    width: 60px;
+    height: 60px;
+  }
+}
