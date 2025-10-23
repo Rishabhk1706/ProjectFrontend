@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create Match Request</title>
+  <link rel="stylesheet" href="creatematch.css" />
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <a href="dashboard.html" class="logo">Hackathon Accumulator</a>
+      <ul class="nav-links">
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="updatematch.html">My Teams</a></li>
+        <li><a href="profile.html">Profile</a></li>
+        <li><a href="#" onclick="logout()">Logout</a></li>
+      </ul>
+      <div class="hamburger" onclick="toggleMenu()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </nav>
+  </header>
+
+  <div class="form-container">
+    <h1>Create Team Request</h1>
+    <form id="createForm">
+      <label for="event">Registered Events</label>
+      <select id="event" required>
+        <option value="">Loading...</option>
+      </select>
+
+      <label for="maxTeamSize">Max Team Size</label>
+      <input type="number" id="maxTeamSize" required />
+
+      <label for="roles">Looking for Roles (comma-separated)</label>
+      <input type="text" id="roles" required/>
+
+      <label for="skills">Looking for Skills (comma-separated)</label>
+      <input type="text" id="skills" required/>
+
+      <button type="submit">Create</button>
+    </form>
+  </div>
+
+  <script>
+    const token = localStorage.getItem("token");
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    if (!token || !user?._id) {
+      alert("Please login first.");
+      window.location.href = "login.html";
+    }
+
+    function toggleMenu() {
+      document.querySelector('.nav-links').classList.toggle('active');
+      document.querySelector('.hamburger').classList.toggle('active');
+    }
+
+    document.querySelectorAll('.nav-links a').forEach(link => {
+      link.addEventListener('click', () => {
+        document.querySelector('.nav-links').classList.remove('active');
+        document.querySelector('.hamburger').classList.remove('active');
+      });
+    });
+
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      alert('Logged out successfully!');
+      window.location.href = 'login.html';
+    }
+
+    document.addEventListener('click', (e) => {
+      const navLinks = document.querySelector('.nav-links');
+      const hamburger = document.querySelector('.hamburger');
+      const navbar = document.querySelector('.navbar');
+
+      if (!navbar.contains(e.target) && navLinks.classList.contains('active')) {
+        navLinks.classList.remove('active');
+        hamburger.classList.remove('active');
+      }
+    });
+
+    async function loadEvents() {
+      const eventSelect = document.getElementById("event");
+
+      try {
+        const res = await axios.get("https://hackathonaccumulator.onrender.com/api/events", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        const allEvents = res.data;
+        const userId = user._id;
+        const today = new Date();
+
+        const registeredEvents = allEvents.filter(event =>
+          event.registeredUsers?.some(u =>
+            typeof u === "object" ? u._id === userId : u === userId
+          ) && new Date(event.startDate) > today
+        );
+
+        if (!registeredEvents.length) {
+          eventSelect.innerHTML = '<option value="">No upcoming registered events</option>';
+        } else {
+          eventSelect.innerHTML = '<option value="">Select an event</option>';
+          registeredEvents.forEach(event => {
+            const opt = document.createElement("option");
+            opt.value = event._id;
+            opt.textContent = event.title;
+            eventSelect.appendChild(opt);
+          });
+        }
+
+      } catch (err) {
+        console.error("Error loading events", err);
+        eventSelect.innerHTML = '<option value="">Failed to load</option>';
+      }
+    }
+
+    loadEvents();
+
+    document.getElementById("createForm").addEventListener("submit", async e => {
+      e.preventDefault();
+
+      const event = document.getElementById("event").value;
+      const maxTeamSize = parseInt(document.getElementById("maxTeamSize").value);
+      const roles = document.getElementById("roles").value
+        .split(",").map(s => s.trim()).filter(Boolean);
+      const skills = document.getElementById("skills").value
+        .split(",").map(s => s.trim()).filter(Boolean);
+
+      try {
+        await axios.post("https://hackathonaccumulator.onrender.com/api/match-requests", {
+          event,
+          maxTeamSize,
+          lookingForRoles: roles,
+          skills: skills
+        }, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        alert("✅ Match Request Created!");
+        window.location.href = "updatematch.html";
+      } catch (err) {
+        console.error("Full error:", err);
+        console.error("Backend says:", err?.response?.data);
+        alert("❌ Error creating match request: " + (err?.response?.data?.error || "Check console for details"));
+      }
+    });
+  </script>
+</body>
+</html>
