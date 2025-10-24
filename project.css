@@ -1,0 +1,224 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.7;
+  color: #2c3e50;
+  background: linear-gradient(135deg, #1a1f25, #2a2f35);
+  min-height: 100vh;
+  padding: 2rem 1rem;
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  text-decoration: none;
+  padding: 0.7rem 1.5rem;
+  border-radius: 30px;
+  font-weight: 500;
+  transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.project-details {
+  max-width: 900px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2.5rem;
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 25px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15), inset 0 0 15px rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  position: relative;
+  overflow: hidden;
+  animation: slideInUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@keyframes slideInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.project-details h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  background: #764ba2;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 800;
+  letter-spacing: -1px;
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.project-details p {
+  margin: 10px 0;
+  font-size: 1.05rem;
+  color: black;
+  line-height: 1.8;
+}
+
+.project-details p strong {
+  font-weight: 700;
+  color: #764ba2;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-left: 5px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: linear-gradient(90deg, #fa709a 0%, #fee140 100%);
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(250, 112, 154, 0.3);
+}
+
+.status-badge:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+ul {
+  list-style-type: disc;
+  margin-left: 1.5rem;
+  margin-top: 0.5rem;
+  color: black;
+}
+
+textarea {
+  margin-top: 10px;
+  padding: 10px;
+  width: 80%;
+  min-height: 25vh;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  font-size: 1rem;
+  resize: vertical;
+  transition: border-color 0.3s ease;
+}
+
+textarea:focus {
+  border-color: #764ba2;
+  outline: none;
+}
+
+#applySection {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #ccc;
+  text-align: center;
+}
+
+#applySection h3 {
+  font-size: 1.6rem;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  color: #764ba2;
+}
+
+#applyBtn {
+  background-color: #764ba2;
+  color: white;
+  border: none;
+  padding: 12px 35px;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600px;
+  margin-top: 10px;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: background-color 0.3s ease;
+  align-items: center;
+}
+
+#applyBtn:hover {
+  background: linear-gradient(135deg, #1a1f25, #2a2f35);
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: 0 12px 30px rgba(118, 75, 162, 0.45);
+}
+
+#applyBtn:disabled {
+  background-color: #bbb;
+  cursor: not-allowed;
+}
+
+#applyStatus {
+  margin-top: 10px;
+  color: green;
+  font-weight: 500;
+}
+
+.status-active {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: white;
+}
+
+.status-completed {
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+  color: white;
+}
+
+.status-pending {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+  color: white;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .project-details {
+    padding: 2rem 1.5rem;
+  }
+
+  .project-details h1 {
+    font-size: 1.8rem;
+  }
+
+  textarea {
+    font-size: 0.95rem;
+  }
+
+  #applyBtn {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .project-details {
+    padding: 1.5rem 1rem;
+  }
+
+  .project-details h1 {
+    font-size: 1.6rem;
+  }
+
+  .back-btn {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+  }
+}
