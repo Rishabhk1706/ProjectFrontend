@@ -1,0 +1,447 @@
+body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #2a2f35);
+    color: #fff;
+    padding: 40px 20px;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+header {
+  background: linear-gradient(135deg, #0a0a0a, #1a1f25, #2a2f35);
+  color: white;
+  padding: 1rem 0;
+  position: fixed;
+  width: 100%;
+  top: 0;
+  z-index: 1000;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.logo {
+  font-size: 1.8rem;
+  font-weight: bold;
+  text-decoration: none;
+  color: white;
+  transition: transform 0.3s ease;
+}
+
+.logo:hover {
+  transform: scale(1.05);
+}
+
+.nav-links {
+  display: flex;
+  list-style: none;
+  gap: 2rem;
+}
+
+.nav-links a {
+  color: white;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 25px;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.nav-links a:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.hamburger {
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
+.hamburger span {
+  width: 25px;
+  height: 3px;
+  background: white;
+  margin: 3px 0;
+  border-radius: 3px;
+  transition: all 0.3s ease;
+}
+
+.hamburger.active span:nth-child(1) {
+  transform: rotate(-45deg) translate(-5px, 6px);
+}
+.hamburger.active span:nth-child(2) {
+  opacity: 0;
+}
+.hamburger.active span:nth-child(3) {
+  transform: rotate(45deg) translate(-5px, -6px);
+}
+
+.container {
+    background: #fff;
+    color: #1a1a1a;
+    max-width: 800px;
+    width: 95%;
+    margin: 20px;
+    padding: 40px;
+    border-radius: 18px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    transition: transform 0.3s ease-in-out;
+    box-sizing: border-box;
+}
+
+.container:hover {
+    transform: translateY(-5px);
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 35px;
+    color: linear-gradient(135deg, #0a0a0a, #1a1f25, #2a2f35);
+    font-weight: 700;
+    font-size: 2.0 em;
+    letter-spacing: -0.5px;
+}
+
+.request-card {
+    background: #fdfdff;
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 25px;
+    border: 1px solid #e0e0e0;
+    line-height: 1.6;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.2s ease;
+}
+
+.request-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
+}
+
+.request-card h3 {
+    color: #764ba2;
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.4em;
+}
+
+.request-card p {
+    margin-bottom: 8px;
+    color: #4a4a4a;
+}
+
+.request-card p strong {
+    color: #333;
+}
+
+.actions {
+    margin-top: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+button {
+    background: #764ba2;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    font-size: 0.9em;
+    font-weight: 500;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+}
+
+button:hover {
+    background: #5b3a91;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 999;
+    opacity: 1;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.modal.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.modal-content {
+    background: #fff;
+    color: #1a1a1a;
+    padding: 35px 40px;
+    border-radius: 16px;
+    width: 90vw;
+    max-width: 550px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+    box-sizing: border-box;
+    transform: scale(1);
+    transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+.modal.hidden .modal-content {
+    transform: scale(0.8);
+}
+
+.modal-content h2 {
+    text-align: center;
+    color: #BA447D;
+    margin-bottom: 25px;
+    font-size: 1.8em;
+    font-weight: 700;
+}
+
+.modal-content label {
+    font-weight: 600;
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 8px;
+    color: #5b3a91;
+}
+
+.modal-content input,
+.modal-content textarea,
+.modal-content select {
+    width: calc(100% - 22px);
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    margin-bottom: 20px;
+    font-size: 1em;
+    color: #333;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.modal-content input:focus,
+.modal-content textarea:focus,
+.modal-content select:focus {
+    outline: none;
+    border-color: #764ba2;
+    box-shadow: 0 0 0 3px rgba(118, 75, 162, 0.2);
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.modal-actions button {
+    padding: 12px 25px;
+    font-weight: 600;
+    font-size: 1em;
+}
+
+.modal-actions button:first-child {
+    background: #764ba2;
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(118, 75, 162, 0.2);
+}
+
+.modal-actions button:first-child:hover {
+    background: #5b3a91;
+    box-shadow: 0 6px 15px rgba(118, 75, 162, 0.3);
+}
+
+.modal-actions button:last-child {
+    background: #e0e0e0;
+    color: #555;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.modal-actions button:last-child:hover {
+    background: #ccc;
+    color: #333;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+#applicantList,
+#selectedList {
+    list-style: none;
+    padding-left: 0;
+    margin-top: 30px;
+}
+
+#applicantList li,
+#selectedList li {
+    background: #f8f8f8;
+    color: #333;
+    border-radius: 10px;
+    padding: 15px 20px;
+    margin-bottom: 12px;
+    font-size: 1em;
+    line-height: 1.6;
+    border: 1px solid #eee;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+    transition: background 0.2s ease;
+}
+
+#applicantList li:hover,
+#selectedList li:hover {
+    background: #f0f0f0;
+}
+
+#applicantList li strong,
+#selectedList li strong {
+    color: #000;
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .navbar {
+        width: 100%;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1000;
+        background: linear-gradient(to right, #1a1f25, #2b2f36); 
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .nav-links {
+        display: none;
+        position: absolute;
+        top: 65px;
+        right: 20px;
+        flex-direction: column;
+        background: #1a1f25;
+        padding: 1rem;
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        width: 180px;
+        z-index: 999;
+    }
+
+    .nav-links.active {
+        display: flex;
+    }
+
+    .hamburger {
+        display: flex;
+    }
+    body {
+        padding: 30px 15px;
+    }
+
+    h1 {
+        font-size: 2em;
+        margin-bottom: 25px;
+    }
+
+    .container {
+        padding: 30px;
+        border-radius: 16px;
+    }
+
+    .top-buttons {
+        margin-top: 10px;
+        flex-direction: column;
+        gap: 15px;
+        margin-bottom: 25px;
+        padding: 0 10px;
+    }
+
+    .top-buttons button {
+        width: 100%;
+        padding: 14px 20px;
+        font-size: 1em;
+    }
+
+    .request-card {
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .request-card h3 {
+        font-size: 1.3em;
+    }
+
+    .actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    button {
+        width: 100%;
+        padding: 12px 20px;
+        font-size: 0.95em;
+    }
+
+    .modal-content {
+        padding: 30px;
+        width: 95vw;
+        max-height: 85vh;
+    }
+
+    .modal-content h2 {
+        font-size: 1.6em;
+        margin-bottom: 20px;
+    }
+
+    .modal-content input,
+    .modal-content textarea,
+    .modal-content select {
+        padding: 10px;
+        margin-bottom: 15px;
+    }
+
+    .modal-actions {
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .modal-actions button {
+        width: 100%;
+        padding: 12px;
+    }
+
+    #applicantList li,
+    #selectedList li {
+        padding: 12px 15px;
+        font-size: 0.95em;
+    }
+}
