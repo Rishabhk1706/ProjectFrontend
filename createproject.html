@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create Project</title>
+  <link rel="stylesheet" href="createproject.css" />
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <a href="dashboard.html" class="logo">Hackathon Accumulator</a>
+      <ul class="nav-links">
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="updateproject.html">My Projects</a></li>
+        <li><a href="profile.html">Profile</a></li>
+        <li><a href="#" onclick="logout()">Logout</a></li>
+      </ul>
+      <div class="hamburger" onclick="toggleMenu()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </nav>
+  </header>
+
+  <div class="form-container">
+    <h1>Create Project</h1>
+    <form id="projectForm">
+      <label for="title">Title</label>
+      <input type="text" id="title" required>
+
+      <label for="description">Description</label>
+      <textarea id="description" rows="4" required></textarea>
+
+      <div id="rolesContainer">
+        <label>Required Roles</label>
+        <div class="role-block">
+          <input type="text" placeholder="Role" class="role" required />
+          <input type="text" placeholder="Description" class="role-desc" />
+          <input type="number" placeholder="Count" class="role-count" min="1" required />
+        </div>
+      </div>
+      <button type="button" id="addRole">+ Add Role</button>
+
+      <div id="availabilityContainer">
+        <label>Availability</label>
+        <div class="availability-block">
+          <select class="day">
+            <option value="">Select Day</option>
+            <option>Monday</option><option>Tuesday</option><option>Wednesday</option>
+            <option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option>
+          </select>
+          <input type="time" class="start-time" required />
+          <input type="time" class="end-time" required />
+        </div>
+      </div>
+      <button type="button" id="addAvailability">+ Add Availability</button>
+
+      <button type="submit">Create</button>
+    </form>
+  </div>
+
+  <script>
+    const token = localStorage.getItem("token");
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    if (!token || !user?._id) {
+      alert("Please login first.");
+      window.location.href = "login.html";
+    }
+
+    function toggleMenu() {
+      document.querySelector('.nav-links').classList.toggle('active');
+      document.querySelector('.hamburger').classList.toggle('active');
+    }
+
+    document.querySelectorAll('.nav-links a').forEach(link => {
+      link.addEventListener('click', () => {
+        document.querySelector('.nav-links').classList.remove('active');
+        document.querySelector('.hamburger').classList.remove('active');
+      });
+    });
+
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      alert('Logged out successfully!');
+      window.location.href = 'login.html';
+    }
+
+    document.addEventListener('click', (e) => {
+      const navLinks = document.querySelector('.nav-links');
+      const hamburger = document.querySelector('.hamburger');
+      const navbar = document.querySelector('.navbar');
+
+      if (!navbar.contains(e.target) && navLinks.classList.contains('active')) {
+        navLinks.classList.remove('active');
+        hamburger.classList.remove('active');
+      }
+    });
+
+    document.getElementById("addRole").onclick = () => {
+      const div = document.createElement("div");
+      div.className = "role-block";
+      div.innerHTML = `
+        <input type="text" placeholder="Role" class="role" required />
+        <input type="text" placeholder="Description" class="role-desc" />
+        <input type="number" placeholder="Count" class="role-count" min="1" required />
+      `;
+      document.getElementById("rolesContainer").appendChild(div);
+    };
+
+    document.getElementById("addAvailability").onclick = () => {
+      const div = document.createElement("div");
+      div.className = "availability-block";
+      div.innerHTML = `
+        <select class="day">
+          <option value="">Select Day</option>
+          <option>Monday</option><option>Tuesday</option><option>Wednesday</option>
+          <option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option>
+        </select>
+        <input type="time" class="start-time" required />
+        <input type="time" class="end-time" required />
+      `;
+      document.getElementById("availabilityContainer").appendChild(div);
+    };
+
+    function toAmPm(timeStr) {
+      const [hour, minute] = timeStr.split(":").map(Number);
+      const ampm = hour >= 12 ? "PM" : "AM";
+      const hour12 = hour % 12 === 0 ? 12 : hour % 12;
+      return `${hour12.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')} ${ampm}`;
+    }
+
+    document.getElementById("projectForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const title = document.getElementById("title").value.trim();
+      const description = document.getElementById("description").value.trim();
+
+      const roles = Array.from(document.querySelectorAll(".role-block")).map(block => ({
+        role: block.querySelector(".role").value.trim(),
+        description: block.querySelector(".role-desc").value.trim(),
+        count: parseInt(block.querySelector(".role-count").value)
+      }));
+
+      const availability = Array.from(document.querySelectorAll(".availability-block")).map(block => {
+        const day = block.querySelector(".day").value;
+        const start = block.querySelector(".start-time").value;
+        const end = block.querySelector(".end-time").value;
+        return {
+          day,
+          time: `${toAmPm(start)}-${toAmPm(end)}`
+        };
+      });
+
+      try {
+        await axios.post("https://hackathonaccumulator.onrender.com/api/projects", {
+          title,
+          description,
+          postedBy: user._id,
+          requiredRoles: roles,
+          availability,
+        }, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        alert("✅ Project created successfully!");
+        window.location.href = "allprojects.html";
+      } catch (err) {
+        console.error(err);
+        alert("❌ Failed to create project: " + (err.response?.data?.error || "Check console."));
+      }
+    });
+  </script>
+</body>
+</html>
