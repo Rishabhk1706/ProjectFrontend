@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Update Projects</title>
+  <link rel="stylesheet" href="updateproject.css" />
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <a href="dashboard.html" class="logo">Hackathon Accumulator</a>
+      <ul class="nav-links">
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="createevent.html">Create Event</a></li>
+        <li><a href="profile.html">Profile</a></li>
+        <li><a href="#" onclick="logout()">Logout</a></li>
+      </ul>
+      <div class="hamburger" onclick="toggleMenu()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </nav>
+  </header>
+
+  <div class="container">
+    <h1>Your Posted Projects</h1>
+    <div id="projectList"></div>
+  </div>
+
+  <!-- Edit Modal -->
+    <div id="editModal" class="modal hidden">
+    <div class="modal-content">
+        <h2>Edit Project</h2>
+
+        <label>Title:</label>
+        <input type="text" id="editTitle" />
+
+        <label>Description:</label>
+        <textarea id="editDescription" rows="3"></textarea>
+
+        <label>Required Roles:</label>
+        <div id="rolesContainer"></div>
+        <button id="addRole" onclick="addRoleField()">+ Add Role</button>
+
+        <label>Availability:</label>
+        <div id="availabilityContainer"></div>
+        <button id="addAvailability" onclick="addAvailabilityField()">+ Add Availability</button>
+
+        <div class="modal-actions">
+        <button onclick="submitUpdate()">Save</button>
+        <button onclick="closeModal()">Cancel</button>
+        </div>
+    </div>
+    </div>
+
+
+  <!-- Applicants Modal -->
+  <div id="applicantsModal" class="modal hidden">
+    <div class="modal-content">
+      <h2>Applied Users</h2>
+      <ul id="applicantList"></ul>
+      <div class="modal-actions">
+        <button onclick="closeApplicantsModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Selected Users Modal -->
+  <div id="selectedModal" class="modal hidden">
+    <div class="modal-content">
+      <h2>Selected Users</h2>
+      <ul id="selectedList"></ul>
+      <div class="modal-actions">
+        <button onclick="closeSelectedModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const token = localStorage.getItem("token");
+    const user = JSON.parse(localStorage.getItem("user"));
+    let currentProjectId = null;
+
+    if (!token || !user?._id) {
+      alert("Please login first.");
+      window.location.href = "login.html";
+    }
+
+    function toggleMenu() {
+      document.querySelector('.nav-links').classList.toggle('active');
+      document.querySelector('.hamburger').classList.toggle('active');
+    }
+
+    document.querySelectorAll('.nav-links a').forEach(link => {
+      link.addEventListener('click', () => {
+        document.querySelector('.nav-links').classList.remove('active');
+        document.querySelector('.hamburger').classList.remove('active');
+      });
+    });
+
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      alert('Logged out successfully!');
+      window.location.href = 'login.html';
+    }
+
+    document.addEventListener('click', (e) => {
+      const navLinks = document.querySelector('.nav-links');
+      const hamburger = document.querySelector('.hamburger');
+      const navbar = document.querySelector('.navbar');
+
+      if (!navbar.contains(e.target) && navLinks.classList.contains('active')) {
+        navLinks.classList.remove('active');
+        hamburger.classList.remove('active');
+      }
+    });
+    
+    async function loadProjects() {
+      try {
+        const res = await axios.get("https://hackathonaccumulator.onrender.com/api/projects", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        const createdProjects = res.data.filter(p => p.postedBy?._id === user._id);
+        const list = document.getElementById("projectList");
+        list.innerHTML = createdProjects.length === 0 ? "<p>No projects found.</p>" : "";
+
+        createdProjects.forEach(project => {
+          const div = document.createElement("div");
+          div.className = "event-card";
+          div.innerHTML = `
+            <strong>${project.title}</strong><br>
+            ${project.description}<br>
+            Status: ${project.status}<br>
+            <div class="actions">
+              <button onclick="openModal(this)"
+                data-id="${project._id}"
+                data-title="${project.title}"
+                data-description="${project.description}">
+                Update
+              </button>
+              <button onclick="deleteProject('${project._id}')">Delete</button>
+              <button onclick="viewApplicants('${project._id}')">Applied Users</button>
+              <button onclick="viewSelectedUsers('${project._id}')">Selected Users</button>
+            </div>
+          `;
+          list.appendChild(div);
+        });
+      } catch (err) {
+        console.error("Failed to load projects:", err);
+        document.getElementById("projectList").innerHTML = "<p>Error loading projects.</p>";
+      }
+    }
+
+    async function openModal(button) {
+        currentProjectId = button.dataset.id;
+        document.getElementById("editTitle").value = button.dataset.title;
+        document.getElementById("editDescription").value = button.dataset.description;
+
+        clearRoleAndAvailabilityFields();
+
+        try {
+            const res = await axios.get(`https://hackathonaccumulator.onrender.com/api/projects/${currentProjectId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+            });
+
+            const project = res.data;
+
+            (project.requiredRoles || []).forEach(r =>
+            addRoleField(r.role, r.description, r.count)
+            );
+
+            (project.availability || []).forEach(a =>
+            addAvailabilityField(a.day, a.time)
+            );
+
+            document.getElementById("editModal").classList.remove("hidden");
+        } catch (err) {
+            console.error("Failed to load project details:", err);
+            alert("Could not load full project data.");
+        }
+    }
+
+    function closeModal() {
+      document.getElementById("editModal").classList.add("hidden");
+      currentProjectId = null;
+    }
+
+    function addRoleField(role = "", description = "", count = 1) {
+        const container = document.getElementById("rolesContainer");
+        const div = document.createElement("div");
+        div.className = "role-block";
+        div.innerHTML = `
+            <input type="text" placeholder="Role" value="${role}" required>
+            <input type="text" placeholder="Description" value="${description}" required>
+            <input type="number" min="1" placeholder="Count" value="${count}" required>
+        `;
+        container.appendChild(div);
+    }
+
+    function addAvailabilityField(day = "Monday", time = "") {
+        const container = document.getElementById("availabilityContainer");
+        const div = document.createElement("div");
+        div.className = "availability-block";
+        div.innerHTML = `
+            <select required>
+            ${["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
+                .map(d => `<option value="${d}" ${d === day ? "selected" : ""}>${d}</option>`).join("")}
+            </select>
+            <input type="text" placeholder="Time (e.g. 10:00 AM-12:00 PM)" value="${time}" required>
+        `;
+        container.appendChild(div);
+    }
+
+    function clearRoleAndAvailabilityFields() {
+        document.getElementById("rolesContainer").innerHTML = "";
+        document.getElementById("availabilityContainer").innerHTML = "";
+    }
+
+    async function submitUpdate() {
+        const title = document.getElementById("editTitle").value.trim();
+        const description = document.getElementById("editDescription").value.trim();
+
+        const roles = [...document.querySelectorAll("#rolesContainer .role-block")].map(block => {
+            const [role, description, count] = block.querySelectorAll("input");
+            return {
+            role: role.value.trim(),
+            description: description.value.trim(),
+            count: parseInt(count.value)
+            };
+        });
+
+        const availability = [...document.querySelectorAll("#availabilityContainer .availability-block")].map(block => {
+            const [daySelect, timeInput] = block.querySelectorAll("select, input");
+            return {
+            day: daySelect.value,
+            time: timeInput.value.trim()
+            };
+        });
+
+        const updated = { title, description, requiredRoles: roles, availability };
+
+        try {
+            await axios.put(`https://hackathonaccumulator.onrender.com/api/projects/${currentProjectId}`, updated, {
+            headers: { Authorization: `Bearer ${token}` }
+            });
+            alert("Project updated successfully!");
+            closeModal();
+            loadProjects();
+        } catch (err) {
+            console.error("Update failed:", err);
+            alert("Failed to update project.");
+        }
+    }
+
+    async function deleteProject(id) {
+      if (confirm("Are you sure you want to delete this project?")) {
+        try {
+          await axios.delete(`https://hackathonaccumulator.onrender.com/api/projects/${id}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          alert("Project deleted successfully!");
+          loadProjects();
+        } catch (err) {
+          console.error("Delete failed:", err);
+          alert("Failed to delete project.");
+        }
+      }
+    }
+
+    function goToProfile(userId) {
+      window.location.href = `userprofile.html?id=${userId}`;
+    }
+
+    async function viewApplicants(projectId) {
+      try {
+        const res = await axios.get(`https://hackathonaccumulator.onrender.com/api/projects/${projectId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        const applicants = res.data.applicants || [];
+        const selectedUserIds = (res.data.selectedUsers || []).map(su => su.user?._id);
+        const list = document.getElementById("applicantList");
+
+        list.innerHTML = applicants.length === 0
+          ? "<p>No applicants yet.</p>"
+          : applicants.map(app => {
+              const isSelected = selectedUserIds.includes(app.user?._id);
+              return `
+                <li onclick="goToProfile('${app.user._id}')" style="cursor: pointer;">
+                  <strong>Name:</strong> ${app.user?.name || "Unknown"}<br>
+                  <strong>Email:</strong> ${app.user?.email || "Unknown"}<br>
+                  <strong>Message:</strong> ${app.message || "No message"}<br>
+                  <button
+                    ${isSelected ? "disabled" : `onclick="selectUser('${projectId}', '${app.user?._id}')"`}
+                    style="${isSelected ? 'background: gray; cursor: not-allowed;' : ''}">
+                    ${isSelected ? "Selected" : "Select"}
+                  </button>
+                </li>
+              `;
+            }).join("");
+
+        document.getElementById("applicantsModal").classList.remove("hidden");
+      } catch (err) {
+        console.error("Failed to fetch applicants:", err);
+        alert("Could not load applicants.");
+      }
+    }
+
+    async function removeSelectedUser(projectId, userId) {
+        if (!confirm("Remove this user from selected list?")) return;
+
+        try {
+            await axios.put(`https://hackathonaccumulator.onrender.com/api/projects/${projectId}`, {
+            $pull: { selectedUsers: { user: userId } }
+            }, {
+            headers: { Authorization: `Bearer ${token}` }
+            });
+
+            alert("User removed from selected list.");
+            viewSelectedUsers(projectId); // Refresh modal
+        } catch (err) {
+            console.error("Failed to remove selected user:", err);
+            alert("Error removing user.");
+        }
+    }
+
+    async function viewSelectedUsers(projectId) {
+      try {
+        const res = await axios.get(`https://hackathonaccumulator.onrender.com/api/projects/${projectId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        const selectedUsers = res.data.selectedUsers || [];
+        const list = document.getElementById("selectedList");
+
+        list.innerHTML = selectedUsers.length === 0
+          ? "<p>No selected users yet.</p>"
+          : selectedUsers.map(sel => `
+              <li>
+                <strong>Name:</strong> ${sel.user?.name || "Unknown"}<br>
+                <strong>Email:</strong> ${sel.user?.email || "Unknown"}<br>
+                <strong>Role:</strong> ${sel.role || "N/A"}<br>
+                <button onclick="removeSelectedUser('${projectId}', '${sel.user?._id}')">
+                    Remove
+                </button>
+              </li>
+            `).join("");
+
+        document.getElementById("selectedModal").classList.remove("hidden");
+      } catch (err) {
+        console.error("Failed to load selected users:", err);
+        alert("Could not load selected users.");
+      }
+    }
+
+    function closeApplicantsModal() {
+      document.getElementById("applicantsModal").classList.add("hidden");
+    }
+
+    function closeSelectedModal() {
+      document.getElementById("selectedModal").classList.add("hidden");
+    }
+
+    async function selectUser(projectId, userId) {
+      const role = prompt("Enter role to assign to user:");
+      if (!role) return;
+
+      try {
+        await axios.put(`https://hackathonaccumulator.onrender.com/api/projects/${projectId}`, {
+          $push: { selectedUsers: { user: userId, role } }
+        }, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        alert("User selected!");
+        closeApplicantsModal();
+        loadProjects();
+      } catch (err) {
+        console.error("Select user failed:", err);
+        alert("Failed to select user.");
+      }
+    }
+
+    loadProjects();
+  </script>
+</body>
+</html>
